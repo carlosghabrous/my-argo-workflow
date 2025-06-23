@@ -1,0 +1,60 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: my-argo-workflow-template
+  namespace: volcanoes
+  labels:
+    product: volcanoes
+spec:
+  serviceAccountName: volcanoes
+  arguments:
+    parameters:
+      - name: message
+      - name: image_tag
+        value: "2025.06.23.1"
+
+  entrypoint: print-message
+
+  templates:
+    - name: print-message
+      inputs:
+        parameters:
+          - name: message
+          - name: image_tag
+          
+      steps:
+        - - name: printer
+            template: printer-template
+            arguments:
+              parameters:
+                - name: message 
+                  value: "{{input.parameters.message}}"
+                - name: image_tag
+                  value: "{{input.parameters.image_tag}}"
+
+    - name: printer-template
+      metadata:
+        labels:
+          azure.workload.identity/use: "true"
+      nodeSelector:
+        agentpool: argovolc
+      tolerations:
+      - key: pool
+        operator: Equal
+        value: argovolc
+        effect: NoSchedule
+      inputs:
+        parameters:
+        - name: message
+        - name: image_tag
+      container:
+        image: "mtweacrdevdacr01.azurecr.io/firefront:{{inputs.parameters.image_tag}}"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1"
+          limits:
+            memory: "2Gi"
+            cpu: "2"
+        imagePullPolicy: Always
+        command: ["python3", "-m", "src.printer.print", "{{inputs.parameters.message}}"]
