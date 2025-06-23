@@ -6,3 +6,4 @@ def print(message: str) -> None:
         message (str): The message to print.
     """
     print(message)
+    
