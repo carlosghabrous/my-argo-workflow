@@ -1,0 +1,40 @@
+name: Deploy Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+        required: true
+      image_tag:
+        description: 'Image tag to deploy'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout deployment metadata repo
+        uses: actions/checkout@v4
+        with:
+          repository: carlosghabrous/argo-workflows-metadata
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: deploy-metadata
+
+      - name: Update image tag for environment
+        run: |
+          echo "image_tag: ${{ github.event.inputs.image_tag }}" > deploy-metadata/${{ github.event.inputs.environment }}/${{ github.event.repository.name }}.yaml
+
+      - name: Create PR with updated tag
+        uses: peter-evans/create-pull-request@v5
+        with:
+          path: deploy-metadata
+          commit-message: "${{ github.event.repository.name}}: deploy ${{ github.event.inputs.image_tag }} to ${{ github.event.inputs.environment }}"
+          branch: deploy/${{ github.event.repository.name}}-${{ github.event.inputs.environment }}-${{ github.event.inputs.image_tag }}
+          title: "${{ github.event.repository.name}}: deploy ${{ github.event.inputs.image_tag }} to ${{ github.event.inputs.environment }}"
+          base: main
