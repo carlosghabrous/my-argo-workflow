@@ -33,6 +33,7 @@ jobs:
       - name: Create PR with updated tag
         uses: peter-evans/create-pull-request@v5
         with:
+          token: ${{ secrets.GH_ACTIONS_TOKEN }}
           path: deploy-metadata
           commit-message: "${{ github.event.repository.name}}: deploy ${{ github.event.inputs.image_tag }} to ${{ github.event.inputs.environment }}"
           branch: deploy/${{ github.event.repository.name}}-${{ github.event.inputs.environment }}-${{ github.event.inputs.image_tag }}
