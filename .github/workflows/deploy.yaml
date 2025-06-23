@@ -28,7 +28,7 @@ jobs:
 
       - name: Update image tag for environment
         run: |
-          echo "image_tag: ${{ github.event.inputs.image_tag }}" > deploy-metadata/${{ github.event.inputs.environment }}/${{ github.event.repository.name }}.yaml
+          sed -i '' "s/^image_tag: .*/image_tag: ${{ github.event.inputs.image_tag }}/" deploy-metadata/${{ github.event.inputs.environment }}/${{ github.event.repository.name }}.yaml
 
       - name: Create PR with updated tag
         uses: peter-evans/create-pull-request@v5
