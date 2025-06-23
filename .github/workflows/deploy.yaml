@@ -14,10 +14,7 @@ on:
         description: 'Image tag to deploy'
         required: true
 
-permissions:
-  contents: write
-  pull-requests: write
-  
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
