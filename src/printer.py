@@ -5,5 +5,5 @@ def print(message: str) -> None:
     Args:
         message (str): The message to print.
     """
-    print(message) + print(message)
+    print(f"hello my friend {message}")
     
